@@ -14,8 +14,12 @@ while IFS="=" read -u 10 -a line; do
 
   dokku_log_info2 "Installing from ./${line[1]}"
 
-  app_root="$TMP_WORK_DIR/${line[1]}"
-  cp -r $app_root/. $TMP_WORK_DIR/
+  app_root=$(readlink -f "$TMP_WORK_DIR/${line[1]}")
+  if [[ $app_root != $(readlink -f $TMP_WORK_DIR) ]] ; then
+      cp -r $app_root/. $TMP_WORK_DIR/
+  else
+      echo "monorepo: skipping copy, because target is the same as destination"
+  fi
   
   exit
 done 10<"$TMP_WORK_DIR/.dokku-monorepo"
